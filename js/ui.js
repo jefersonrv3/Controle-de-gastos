@@ -53,6 +53,11 @@ function renderContas(contas) {
     card.innerHTML = `
       <h3>${conta.nome}</h3>
       <p class="valor">${formatarMoeda(conta.saldo)}</p>
+      <div class="acoes-card">
+        <button type="button" class="btn-icone btn-editar-conta" data-conta-id="${conta.id}">
+          Editar / Adicionar saldo
+        </button>
+      </div>
     `;
 
     container.appendChild(card);
@@ -117,6 +122,9 @@ function renderHistorico(lancamentos, contas) {
       <span class="descricao">${lancamento.descricao}</span>
       <span class="valor">${formatarMoeda(lancamento.valor)}</span>
       <span class="data">${formatarData(lancamento.data)}</span>
+      <button type="button" class="btn-icone btn-perigo btn-excluir-lancamento" data-lancamento-id="${lancamento.id}">
+        Excluir
+      </button>
     `;
 
     lista.appendChild(item);
@@ -153,6 +161,14 @@ function renderDividas(dividas) {
         <h3>${divida.descricao}</h3>
         <p>Quitada — ${divida.numParcelas} de ${divida.numParcelas} parcelas pagas</p>
         <span class="badge em-dia">Concluída</span>
+        <div class="acoes-card">
+          <button type="button" class="btn-icone btn-desfazer-parcela" data-divida-id="${divida.id}">
+            Desfazer última parcela
+          </button>
+          <button type="button" class="btn-icone btn-perigo btn-excluir-divida" data-divida-id="${divida.id}">
+            Excluir dívida
+          </button>
+        </div>
       `;
       container.appendChild(card);
       return; // pula o resto do processamento (vencimento) pra essa dívida
@@ -182,9 +198,21 @@ function renderDividas(dividas) {
       <p>Restam ${parcelasRestantes} parcela(s)</p>
       <p>Previsão: ${formatarData(proximoVencimento)}</p>
       <span class="badge ${emAlerta ? 'alerta-vencimento' : 'em-dia'}">${textoBadge}</span>
-      <div style="margin-top: var(--space-md);">
-        <button type="button" class="btn-pagar-parcela" data-divida-id="${divida.id}">
+      <div class="acoes-card">
+        <button type="button" class="btn-icone btn-pagar-parcela" data-divida-id="${divida.id}">
           Marcar parcela como paga
+        </button>
+        ${
+          // "Desfazer" só faz sentido mostrar se JÁ existe pelo menos 1 parcela paga —
+          // não tem o que desfazer numa dívida que ainda não teve nenhum pagamento.
+          divida.parcelasPagas.length > 0
+            ? `<button type="button" class="btn-icone btn-desfazer-parcela" data-divida-id="${divida.id}">
+                 Desfazer última parcela
+               </button>`
+            : ''
+        }
+        <button type="button" class="btn-icone btn-perigo btn-excluir-divida" data-divida-id="${divida.id}">
+          Excluir dívida
         </button>
       </div>
     `;

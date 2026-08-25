@@ -243,11 +243,16 @@ select:focus {
 
 .item-historico {
   display: flex;
+  flex-wrap: wrap; /* em telas estreitas, o botão de excluir quebra pra próxima linha */
   justify-content: space-between;
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-sm) 0;
   border-bottom: 1px solid var(--color-border);
+}
+
+.item-historico .btn-excluir-lancamento {
+  margin-left: auto; /* empurra o botão pra direita mesmo quando quebra linha */
 }
 
 .item-historico:last-child {
@@ -286,6 +291,35 @@ dialog::backdrop {
   justify-content: flex-end;
   gap: var(--space-sm);
   margin-top: var(--space-lg);
+}
+
+/* ============================================================
+   4.2 AÇÕES SECUNDÁRIAS (editar, excluir, desfazer)
+   Botões menores que ficam dentro dos cards, ao lado de outras
+   informações — não devem competir visualmente com o CTA principal.
+   ============================================================ */
+
+.acoes-card {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  flex-wrap: wrap; /* em telas estreitas, os botões quebram linha em vez de espremer */
+}
+
+.btn-icone {
+  min-height: auto; /* menor que o botão padrão de 44px, pois é uma ação secundária */
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.8rem;
+}
+
+/* Variante "perigo": reaproveita --color-danger, já usada nos alertas de
+   vencimento — reforça visualmente "essa ação é destrutiva/irreversível" */
+.btn-perigo {
+  background-color: var(--color-danger);
+}
+
+.btn-perigo:hover {
+  background-color: #9c332c; /* --color-danger escurecido, mesma lógica do hover de button */
 }
 
 

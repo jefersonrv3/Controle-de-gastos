@@ -84,6 +84,72 @@ function registrarEventos() {
     renderizarTudo();
   });
 
+  // --- Editar Conta (renomear / adicionar saldo / excluir) ---
+  const dialogEditarConta = document.getElementById('dialog-editar-conta');
+
+  // Guarda qual conta está sendo editada no momento. Usamos uma variável
+  // "fora" do listener porque o clique que ABRE o modal (no card) e o
+  // submit que SALVA (no form) são dois eventos separados no tempo —
+  // precisamos lembrar o id da conta entre um evento e outro.
+  let contaEmEdicaoId = null;
+
+  // Delegação de evento: os botões ".btn-editar-conta" são criados
+  // dinamicamente dentro dos cards (ver ui.js), então escutamos o clique
+  // no container pai fixo (#lista-contas), igual já fazemos em #lista-dividas.
+  document.getElementById('lista-contas').addEventListener('click', (evento) => {
+    const botao = evento.target.closest('.btn-editar-conta');
+    if (!botao) return;
+
+    contaEmEdicaoId = botao.dataset.contaId;
+    const conta = contas.find((c) => c.id === contaEmEdicaoId);
+
+    // Pré-preenche o formulário com os dados atuais da conta
+    document.getElementById('editar-conta-nome').value = conta.nome;
+    document.getElementById('editar-conta-adicionar-saldo').value = '0';
+
+    dialogEditarConta.showModal();
+  });
+
+  document.getElementById('btn-cancelar-editar-conta').addEventListener('click', () => {
+    dialogEditarConta.close();
+  });
+
+  document.getElementById('form-editar-conta').addEventListener('submit', (evento) => {
+    evento.preventDefault();
+
+    const conta = contas.find((c) => c.id === contaEmEdicaoId);
+    const novoNome = document.getElementById('editar-conta-nome').value;
+    const valorAdicionar = Number(document.getElementById('editar-conta-adicionar-saldo').value);
+
+    conta.nome = novoNome;
+    conta.saldo += valorAdicionar; // soma (ou subtrai, se o número for negativo)
+    saveContas(contas);
+
+    dialogEditarConta.close();
+    renderizarTudo();
+  });
+
+  // Excluir conta: ação destrutiva, então pedimos confirmação explícita.
+  document.getElementById('btn-excluir-conta').addEventListener('click', () => {
+    const confirmou = confirm(
+      'Excluir esta conta também apaga todos os lançamentos ligados a ela. Deseja continuar?'
+    );
+    if (!confirmou) return;
+
+    // Decisão de design: exclusão em CASCATA. Não faria sentido manter
+    // lançamentos "órfãos" apontando pra uma conta que não existe mais
+    // (o histórico ficaria com uma conta fantasma). Por isso filtramos
+    // (removemos) também os lançamentos dessa conta.
+    contas = contas.filter((c) => c.id !== contaEmEdicaoId);
+    lancamentos = lancamentos.filter((l) => l.contaId !== contaEmEdicaoId);
+
+    saveContas(contas);
+    saveLancamentos(lancamentos);
+
+    dialogEditarConta.close();
+    renderizarTudo();
+  });
+
   // --- Novo Lançamento ---
   document.getElementById('form-lancamento').addEventListener('submit', (evento) => {
     evento.preventDefault();
@@ -110,6 +176,34 @@ function registrarEventos() {
     saveContas(contas);
 
     evento.target.reset();
+    renderizarTudo();
+  });
+
+  // --- Excluir Lançamento ("desfazer") ---
+  // Mesma técnica de delegação: os <li> do histórico são gerados
+  // dinamicamente, então escutamos no <ul> pai fixo (#lista-historico).
+  document.getElementById('lista-historico').addEventListener('click', (evento) => {
+    const botao = evento.target.closest('.btn-excluir-lancamento');
+    if (!botao) return;
+
+    const lancamentoId = botao.dataset.lancamentoId;
+    const lancamento = lancamentos.find((l) => l.id === lancamentoId);
+
+    const confirmou = confirm(`Excluir o lançamento "${lancamento.descricao}"?`);
+    if (!confirmou) return;
+
+    // "Desfazer de verdade": como o lançamento tinha SUBTRAÍDO o valor
+    // da conta na hora de criar, excluir precisa DEVOLVER esse valor —
+    // senão o saldo da conta ficaria errado (menor do que deveria).
+    const conta = contas.find((c) => c.id === lancamento.contaId);
+    if (conta) {
+      conta.saldo += lancamento.valor;
+      saveContas(contas);
+    }
+
+    lancamentos = lancamentos.filter((l) => l.id !== lancamentoId);
+    saveLancamentos(lancamentos);
+
     renderizarTudo();
   });
 
@@ -141,28 +235,60 @@ function registrarEventos() {
     renderizarTudo();
   });
 
-  // --- Marcar parcela como paga ---
-  // Os botões ".btn-pagar-parcela" são criados DINAMICAMENTE pelo ui.js
-  // (dentro de renderDividas), então NÃO existem no HTML quando a página
-  // carrega — não dá pra usar addEventListener neles diretamente aqui.
-  //
-  // A solução é "delegação de eventos": escutamos o clique no elemento
-  // PAI fixo (#lista-dividas, que sempre existe) e verificamos se o
-  // clique aconteceu dentro de um botão .btn-pagar-parcela.
+  // --- Ações dentro dos cards de dívida: pagar parcela, desfazer, excluir ---
+  // Os três botões (.btn-pagar-parcela, .btn-desfazer-parcela, .btn-excluir-divida)
+  // são criados dinamicamente pelo ui.js, então usamos a MESMA técnica de
+  // delegação: um único listener no container pai fixo (#lista-dividas)
+  // que verifica QUAL botão foi clicado dentro dele.
   document.getElementById('lista-dividas').addEventListener('click', (evento) => {
-    const botao = evento.target.closest('.btn-pagar-parcela');
-    if (!botao) return; // clique não foi em um botão de pagar parcela, ignora
+    // --- Marcar parcela como paga ---
+    const botaoPagar = evento.target.closest('.btn-pagar-parcela');
+    if (botaoPagar) {
+      const dividaId = botaoPagar.dataset.dividaId;
+      const divida = dividas.find((d) => d.id === dividaId);
 
-    const dividaId = botao.dataset.dividaId;
-    const divida = dividas.find((d) => d.id === dividaId);
+      // Adiciona o índice da próxima parcela ao array de pagas.
+      // Ex: se já tem [0], a próxima a entrar é o índice 1 (2ª parcela).
+      divida.parcelasPagas.push(divida.parcelasPagas.length);
+      saveDividas(dividas);
 
-    // Adiciona o índice da próxima parcela ao array de pagas.
-    // Ex: se já tem [0], a próxima a entrar é o índice 1 (2ª parcela).
-    divida.parcelasPagas.push(divida.parcelasPagas.length);
-    saveDividas(dividas);
+      renderizarTudo();
+      return; // evita cair nos próximos "if" à toa
+    }
 
-    renderizarTudo();
+    // --- Desfazer última parcela paga ---
+    const botaoDesfazer = evento.target.closest('.btn-desfazer-parcela');
+    if (botaoDesfazer) {
+      const dividaId = botaoDesfazer.dataset.dividaId;
+      const divida = dividas.find((d) => d.id === dividaId);
+
+      // .pop() remove o ÚLTIMO item do array e o devolve — exatamente
+      // o oposto do .push() usado ao marcar como paga. Isso garante que
+      // "desfazer" sempre reverte a parcela mais recentemente marcada,
+      // não uma aleatória.
+      divida.parcelasPagas.pop();
+      saveDividas(dividas);
+
+      renderizarTudo();
+      return;
+    }
+
+    // --- Excluir dívida ---
+    const botaoExcluir = evento.target.closest('.btn-excluir-divida');
+    if (botaoExcluir) {
+      const dividaId = botaoExcluir.dataset.dividaId;
+      const divida = dividas.find((d) => d.id === dividaId);
+
+      const confirmou = confirm(`Excluir a dívida "${divida.descricao}"? Essa ação não pode ser desfeita.`);
+      if (!confirmou) return;
+
+      dividas = dividas.filter((d) => d.id !== dividaId);
+      saveDividas(dividas);
+
+      renderizarTudo();
+    }
   });
+
 }
 
 /* ------------------------------------------------------------
