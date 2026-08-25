@@ -9,13 +9,13 @@
   /* Cores: nomeadas por FUNÇÃO (bg, ink, danger...), não por aparência
      ("verde-claro"), porque a função não muda mesmo se a cor mudar depois */
   --color-bg: #F4F6F5;
-  --color-surface: #FFFFFF;
+  --color-surface: #e0e3e4e3;
   --color-ink: #10231D;
   --color-ink-muted: #5C6E68;
   /* texto secundário, menos contraste */
-  --color-primary: #1B4B43;
+  --color-primary: #8a8c96;
   --color-accent: #E8A33D;
-  --color-success: #3F8F6F;
+  --color-success: #9caac0;
   --color-danger: #C1443C;
   --color-border: #E1E6E3;
 
@@ -84,6 +84,19 @@ header {
   color: var(--color-surface);
 }
 
+header {
+  background-color: #2c3e50;
+  color: #ffffff;
+  padding: 20px;
+  box-shadow:
+    rgba(0, 0, 0, 0.25) 0px 54px 55px,
+    rgba(0, 0, 0, 0.12) 0px -12px 30px,
+    rgba(0, 0, 0, 0.12) 0px 4px 6px,
+    rgba(0, 0, 0, 0.17) 0px 12px 13px,
+    rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  text-shadow: 5px 5px 10px rgb(0, 5, 54);
+}
+
 header h1 {
   color: var(--color-surface);
   text-align: center;
@@ -99,14 +112,14 @@ header h1 {
 
 #grana {
   font-size: 25px;
-  text-shadow: 5px 5px 10px rgb(0, 54, 18);
+  text-shadow: 5px 5px 10px rgb(0, 5, 54);
 }
 
 main {
   /* Grid vertical simples no mobile: cada <section> ocupa a largura toda,
      uma embaixo da outra, na ordem em que aparecem no HTML */
-  display: grid;
-  gap: var(--space-lg);
+  background: #020024;
+  background: linear-gradient(90deg, #0d0e11 0.000%, #111216 8.333%, #16171a 16.667%, #1a1b1e 25.000%, #1e1f22 33.333%, #222326 41.667%, #26272a 50.000%, #292a2e 58.333%, #2c2d31 66.667%, #2f3034 75.000%, #313236 83.333%, #333439 91.667%, #34353a 100.000%);
   padding: var(--space-lg);
 }
 
