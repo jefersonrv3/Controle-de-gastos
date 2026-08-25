@@ -29,7 +29,10 @@
   <header>
     <h1>Controle de Gastos</h1>
     <!-- Espaço reservado pro saldo total geral, que o JS vai calcular somando todas as contas -->
-    <p id="saldo-total">Saldo total: R$ 0,00</p>
+    
+    <div id="saldo-total">
+<p id="saldo-total">Saldo total: R$ 0,00</p>
+    </div>
   </header>
 
   <!-- 
@@ -150,7 +153,7 @@
             no momento do submit (new Date()), então não faz sentido o usuário digitar.
           -->
 
-          <button type="submit">Adicionar Lançamento</button>
+          <button id="btn-add-lancamento"type="submit">Adicionar Lançamento</button>
         </form>
       </div>
 
