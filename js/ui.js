@@ -72,12 +72,12 @@ function renderSaldoTotal(contas) {
 }
 
 /**
- * Preenche o <select> do formulário de lançamento com as contas
- * cadastradas. Precisa ser chamado sempre que a lista de contas mudar,
- * senão o formulário mostraria contas antigas ou nenhuma opção.
+ * Preenche QUALQUER <select> de contas passado como parâmetro.
+ * Extraído como função separada porque agora temos DOIS selects desse tipo
+ * (o de lançamento e o de "depositar em qual conta" do recebível) — em vez
+ * de copiar a mesma lógica duas vezes, escrevemos uma vez e reaproveitamos.
  */
-function renderSelectContas(contas) {
-  const select = document.getElementById('lancamento-conta');
+function preencherSelectDeContas(select, contas) {
   select.innerHTML = '';
 
   if (contas.length === 0) {
@@ -91,6 +91,24 @@ function renderSelectContas(contas) {
     option.textContent = conta.nome;
     select.appendChild(option);
   });
+}
+
+/**
+ * Preenche o <select> do formulário de lançamento com as contas cadastradas.
+ * Precisa ser chamado sempre que a lista de contas mudar.
+ */
+function renderSelectContas(contas) {
+  const select = document.getElementById('lancamento-conta');
+  preencherSelectDeContas(select, contas);
+}
+
+/**
+ * Preenche o <select> "Depositar em qual conta?" do formulário de novo
+ * recebível — mesma lógica do de cima, reaproveitada via preencherSelectDeContas.
+ */
+function renderSelectContaDestino(contas) {
+  const select = document.getElementById('recebivel-conta-destino');
+  preencherSelectDeContas(select, contas);
 }
 
 /* ------------------------------------------------------------
@@ -213,6 +231,74 @@ function renderDividas(dividas) {
         }
         <button type="button" class="btn-icone btn-perigo btn-excluir-divida" data-divida-id="${divida.id}">
           Excluir dívida
+        </button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+/* ------------------------------------------------------------
+   RENDER: DINHEIRO A RECEBER
+   Estrutura bem parecida com renderDividas — a diferença principal
+   é o texto dos botões/badges (linguagem de "receber" em vez de "pagar")
+   e o fato de mostrar pra qual conta o dinheiro vai cair.
+   ------------------------------------------------------------ */
+
+function renderRecebiveis(recebiveis, contas) {
+  const container = document.getElementById('lista-recebiveis');
+  container.innerHTML = '';
+
+  if (recebiveis.length === 0) {
+    container.innerHTML = '<p>Nada cadastrado ainda.</p>';
+    return;
+  }
+
+  recebiveis.forEach((recebivel) => {
+    const quitado = dividaQuitada(recebivel); // função reaproveitada do models.js
+    const parcelasRestantes = calcularParcelasRestantes(recebivel);
+    const valorParcela = calcularValorParcela(recebivel);
+
+    // Busca o nome da conta destino só pra EXIBIR — a lógica de depositar
+    // o dinheiro de verdade acontece no app.js, aqui é só texto informativo.
+    const contaDestino = contas.find((c) => c.id === recebivel.contaDestinoId);
+    const nomeContaDestino = contaDestino ? contaDestino.nome : 'conta removida';
+
+    const card = document.createElement('div');
+    card.className = 'card-recebivel';
+    card.dataset.recebivelId = recebivel.id;
+
+    if (quitado) {
+      card.innerHTML = `
+        <h3>${recebivel.descricao}</h3>
+        <p>Recebido por completo — ${recebivel.numParcelas} de ${recebivel.numParcelas} parcelas</p>
+        <span class="badge em-dia">Concluído</span>
+        <div class="acoes-card">
+          <button type="button" class="btn-icone btn-excluir-recebivel" data-recebivel-id="${recebivel.id}">
+            Excluir
+          </button>
+        </div>
+      `;
+      container.appendChild(card);
+      return;
+    }
+
+    const proximoRecebimento = calcularProximoVencimento(recebivel);
+
+    card.innerHTML = `
+      <h3>${recebivel.descricao}</h3>
+      <p>Parcela ${recebivel.parcelasPagas.length + 1} de ${recebivel.numParcelas}</p>
+      <p class="valor">${formatarMoeda(valorParcela)} / parcela</p>
+      <p>Restam ${parcelasRestantes} parcela(s)</p>
+      <p>Previsão: ${formatarData(proximoRecebimento)}</p>
+      <p>Destino: ${nomeContaDestino}</p>
+      <div class="acoes-card">
+        <button type="button" class="btn-icone btn-marcar-recebido" data-recebivel-id="${recebivel.id}">
+          Marcar como recebido
+        </button>
+        <button type="button" class="btn-icone btn-perigo btn-excluir-recebivel" data-recebivel-id="${recebivel.id}">
+          Excluir
         </button>
       </div>
     `;

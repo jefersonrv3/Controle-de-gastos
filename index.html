@@ -29,10 +29,7 @@
   <header>
     <h1>Controle de Gastos</h1>
     <!-- Espaço reservado pro saldo total geral, que o JS vai calcular somando todas as contas -->
-    
-    <div id="saldo-total">
-<p id="saldo-total">Saldo total: R$ 0,00</p>
-    </div>
+    <p id="saldo-total">Saldo total: R$ 0,00</p>
   </header>
 
   <!-- 
@@ -107,6 +104,14 @@
           -->
           <input type="number" id="editar-conta-adicionar-saldo" name="adicionarSaldo" step="0.01" value="0">
 
+          <label for="editar-conta-definir-saldo">Ou defina o saldo exato (R$)</label>
+          <!-- 
+            Campo alternativo: se PREENCHIDO, sobrescreve o saldo com esse
+            valor exato (ignora o campo "Adicionar ao saldo" acima).
+            Deixe em branco pra continuar usando "Adicionar ao saldo" normalmente.
+          -->
+          <input type="number" id="editar-conta-definir-saldo" name="definirSaldo" step="0.01" placeholder="Deixe em branco para não usar">
+
           <div class="dialog-acoes">
             <!-- botão de excluir fica junto das outras ações, mas com cor de destaque (.btn-perigo) -->
             <button type="button" id="btn-excluir-conta" class="btn-perigo">Excluir conta</button>
@@ -153,7 +158,7 @@
             no momento do submit (new Date()), então não faz sentido o usuário digitar.
           -->
 
-          <button id="btn-add-lancamento"type="submit">Adicionar Lançamento</button>
+          <button type="submit">Adicionar Lançamento</button>
         </form>
       </div>
 
@@ -175,7 +180,63 @@
     </section>
 
     <!-- ======================================================
-         SEÇÃO 3: DÍVIDAS ATIVAS (compras parceladas, empréstimos etc.)
+         SEÇÃO 3: DINHEIRO A RECEBER
+         Mesma lógica de parcelas da dívida, só que "invertida":
+         ao marcar uma parcela como recebida, o valor ENTRA numa
+         carteira escolhida (em vez de sair, como na dívida).
+         ====================================================== -->
+    <section id="recebiveis" aria-labelledby="titulo-recebiveis">
+      <h2 id="titulo-recebiveis">Dinheiro a Receber</h2>
+
+      <button type="button" id="btn-novo-recebivel">+ Adicionar Dinheiro a Receber</button>
+
+      <!-- Container onde o JS vai montar um card por recebível (mesmo padrão de #lista-dividas) -->
+      <div id="lista-recebiveis" data-container="recebiveis">
+        <!-- Exemplo de card gerado por JS:
+        <div class="card-recebivel" data-recebivel-id="1">
+          <h3>Freelance - Cliente X</h3>
+          <p>Parcela 1 de 3</p>
+          <p>Previsão: 10/09/2026</p>
+        </div>
+        -->
+      </div>
+
+      <dialog id="dialog-novo-recebivel">
+        <form id="form-novo-recebivel">
+          <h3>Novo Dinheiro a Receber</h3>
+
+          <label for="recebivel-descricao">Descrição</label>
+          <input type="text" id="recebivel-descricao" name="descricao" placeholder="Ex: Freelance Cliente X" required>
+
+          <label for="recebivel-valor-total">Valor total (R$)</label>
+          <input type="number" id="recebivel-valor-total" name="valorTotal" step="0.01" min="0" required>
+
+          <label for="recebivel-parcelas">Número de parcelas</label>
+          <input type="number" id="recebivel-parcelas" name="numParcelas" step="1" min="1" value="1" required>
+
+          <label for="recebivel-primeiro-recebimento">Data do primeiro recebimento</label>
+          <input type="date" id="recebivel-primeiro-recebimento" name="primeiroRecebimento" required>
+
+          <label for="recebivel-conta-destino">Depositar em qual conta?</label>
+          <!-- 
+            Definido JÁ NA CRIAÇÃO: sempre que uma parcela for marcada como
+            recebida, o valor vai automaticamente pra ESSA conta, sem precisar
+            perguntar de novo a cada parcela.
+          -->
+          <select id="recebivel-conta-destino" name="contaDestino" required>
+            <!-- <option> preenchido dinamicamente pelo JS, igual ao select de lançamento -->
+          </select>
+
+          <div class="dialog-acoes">
+            <button type="button" id="btn-cancelar-recebivel">Cancelar</button>
+            <button type="submit">Salvar</button>
+          </div>
+        </form>
+      </dialog>
+    </section>
+
+    <!-- ======================================================
+         SEÇÃO 4: DÍVIDAS ATIVAS (compras parceladas, empréstimos etc.)
          ====================================================== -->
     <section id="dividas" aria-labelledby="titulo-dividas">
       <h2 id="titulo-dividas">Dívidas Ativas</h2>

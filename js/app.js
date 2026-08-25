@@ -22,6 +22,7 @@
 let contas = [];
 let lancamentos = [];
 let dividas = [];
+let recebiveis = [];
 
 /**
  * Função central de re-renderização. Chamada depois de QUALQUER
@@ -32,8 +33,10 @@ function renderizarTudo() {
   renderContas(contas);
   renderSaldoTotal(contas);
   renderSelectContas(contas);
+  renderSelectContaDestino(contas);
   renderHistorico(lancamentos, contas);
   renderDividas(dividas);
+  renderRecebiveis(recebiveis, contas);
 }
 
 /* ------------------------------------------------------------
@@ -46,6 +49,7 @@ function iniciar() {
   contas = getContas();
   lancamentos = getLancamentos();
   dividas = getDividas();
+  recebiveis = getRecebiveis();
 
   renderizarTudo();
   registrarEventos();
@@ -106,6 +110,7 @@ function registrarEventos() {
     // Pré-preenche o formulário com os dados atuais da conta
     document.getElementById('editar-conta-nome').value = conta.nome;
     document.getElementById('editar-conta-adicionar-saldo').value = '0';
+    document.getElementById('editar-conta-definir-saldo').value = ''; // sempre começa vazio
 
     dialogEditarConta.showModal();
   });
@@ -120,9 +125,21 @@ function registrarEventos() {
     const conta = contas.find((c) => c.id === contaEmEdicaoId);
     const novoNome = document.getElementById('editar-conta-nome').value;
     const valorAdicionar = Number(document.getElementById('editar-conta-adicionar-saldo').value);
+    const valorDefinir = document.getElementById('editar-conta-definir-saldo').value;
 
     conta.nome = novoNome;
-    conta.saldo += valorAdicionar; // soma (ou subtrai, se o número for negativo)
+
+    // Regra: se o campo "definir saldo" foi PREENCHIDO, ele manda —
+    // sobrescreve o saldo com o valor exato digitado, ignorando o campo
+    // "adicionar". Se ficou em branco (valorDefinir === ''), continuamos
+    // usando o comportamento antigo de somar. Assim as duas opções
+    // convivem sem conflito, e nada do que já funcionava foi removido.
+    if (valorDefinir !== '') {
+      conta.saldo = Number(valorDefinir);
+    } else {
+      conta.saldo += valorAdicionar;
+    }
+
     saveContas(contas);
 
     dialogEditarConta.close();
@@ -284,6 +301,82 @@ function registrarEventos() {
 
       dividas = dividas.filter((d) => d.id !== dividaId);
       saveDividas(dividas);
+
+      renderizarTudo();
+    }
+  });
+
+  // --- Novo Dinheiro a Receber ---
+  const dialogNovoRecebivel = document.getElementById('dialog-novo-recebivel');
+
+  document.getElementById('btn-novo-recebivel').addEventListener('click', () => {
+    dialogNovoRecebivel.showModal();
+  });
+
+  document.getElementById('btn-cancelar-recebivel').addEventListener('click', () => {
+    dialogNovoRecebivel.close();
+  });
+
+  document.getElementById('form-novo-recebivel').addEventListener('submit', (evento) => {
+    evento.preventDefault();
+
+    const descricao = document.getElementById('recebivel-descricao').value;
+    const valorTotal = document.getElementById('recebivel-valor-total').value;
+    const numParcelas = document.getElementById('recebivel-parcelas').value;
+    const primeiroVencimento = document.getElementById('recebivel-primeiro-recebimento').value;
+    const contaDestinoId = document.getElementById('recebivel-conta-destino').value;
+
+    if (!contaDestinoId) {
+      alert('Cadastre uma conta antes de criar um recebível.');
+      return;
+    }
+
+    const novoRecebivel = criarRecebivel(descricao, valorTotal, numParcelas, primeiroVencimento, contaDestinoId);
+    recebiveis.push(novoRecebivel);
+    saveRecebiveis(recebiveis);
+
+    evento.target.reset();
+    dialogNovoRecebivel.close();
+    renderizarTudo();
+  });
+
+  // --- Ações dentro dos cards de recebível: marcar como recebido, excluir ---
+  // Mesmo padrão de delegação usado em #lista-dividas.
+  document.getElementById('lista-recebiveis').addEventListener('click', (evento) => {
+    // --- Marcar parcela como recebida: aqui é onde o dinheiro de fato
+    // entra na carteira, diferente da dívida (que só controla, não mexe em saldo) ---
+    const botaoReceber = evento.target.closest('.btn-marcar-recebido');
+    if (botaoReceber) {
+      const recebivelId = botaoReceber.dataset.recebivelId;
+      const recebivel = recebiveis.find((r) => r.id === recebivelId);
+      const valorParcela = calcularValorParcela(recebivel);
+
+      const conta = contas.find((c) => c.id === recebivel.contaDestinoId);
+      if (conta) {
+        conta.saldo += valorParcela; // é AQUI que "o valor vai pra carteira"
+        saveContas(contas);
+      }
+
+      recebivel.parcelasPagas.push(recebivel.parcelasPagas.length);
+      saveRecebiveis(recebiveis);
+
+      renderizarTudo();
+      return;
+    }
+
+    // --- Excluir recebível ---
+    const botaoExcluir = evento.target.closest('.btn-excluir-recebivel');
+    if (botaoExcluir) {
+      const recebivelId = botaoExcluir.dataset.recebivelId;
+      const recebivel = recebiveis.find((r) => r.id === recebivelId);
+
+      const confirmou = confirm(
+        `Excluir "${recebivel.descricao}"? Isso só remove o controle — valores já recebidos continuam na carteira.`
+      );
+      if (!confirmou) return;
+
+      recebiveis = recebiveis.filter((r) => r.id !== recebivelId);
+      saveRecebiveis(recebiveis);
 
       renderizarTudo();
     }

@@ -19,6 +19,7 @@ const STORAGE_KEYS = {
   CONTAS: 'controle-gastos:contas',
   LANCAMENTOS: 'controle-gastos:lancamentos',
   DIVIDAS: 'controle-gastos:dividas',
+  RECEBIVEIS: 'controle-gastos:recebiveis',
 };
 
 /* ------------------------------------------------------------
@@ -88,4 +89,12 @@ function getDividas() {
 
 function saveDividas(dividas) {
   salvarNoStorage(STORAGE_KEYS.DIVIDAS, dividas);
+}
+
+function getRecebiveis() {
+  return lerDoStorage(STORAGE_KEYS.RECEBIVEIS);
+}
+
+function saveRecebiveis(recebiveis) {
+  salvarNoStorage(STORAGE_KEYS.RECEBIVEIS, recebiveis);
 }
