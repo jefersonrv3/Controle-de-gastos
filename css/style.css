@@ -1,0 +1,322 @@
+/* ============================================================
+   1. DESIGN TOKENS (variáveis CSS)
+   Por que usar variáveis? Se amanhã eu quiser mudar a cor primária
+   do app inteiro, troco em UM lugar aqui, em vez de caçar cada
+   ocorrência de "#1B4B43" espalhada pelo arquivo.
+   :root = escopo global, acessível em qualquer seletor do arquivo.
+   ============================================================ */
+:root {
+  /* Cores: nomeadas por FUNÇÃO (bg, ink, danger...), não por aparência
+     ("verde-claro"), porque a função não muda mesmo se a cor mudar depois */
+  --color-bg: #F4F6F5;
+  --color-surface: #FFFFFF;
+  --color-ink: #10231D;
+  --color-ink-muted: #5C6E68; /* texto secundário, menos contraste */
+  --color-primary: #1B4B43;
+  --color-accent: #E8A33D;
+  --color-success: #3F8F6F;
+  --color-danger: #C1443C;
+  --color-border: #E1E6E3;
+
+  /* Tipografia: uma fonte por PAPEL (título / corpo / número),
+     não por gosto estético isolado */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* Espaçamento em escala consistente (múltiplos de 4px).
+     Evita "8px aqui, 10px ali, 15px acolá" sem critério. */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+
+  --radius: 12px; /* arredondamento padrão dos cards/botões */
+}
+
+/* ============================================================
+   2. RESET BÁSICO
+   Navegadores diferentes têm margens/paddings padrão diferentes.
+   Zerar isso garante que o layout se comporte igual em qualquer um.
+   ============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* padding/border não somam ao width definido, facilita cálculo de grid */
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  line-height: 1.5; /* espaçamento entre linhas de texto, melhora leitura */
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+}
+
+/* Classe utilitária: aplique em qualquer elemento que exiba um VALOR monetário */
+.valor {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums; /* garante que os dígitos tenham a mesma largura */
+}
+
+/* ============================================================
+   3. LAYOUT ESTRUTURAL — MOBILE FIRST
+   Regra de ouro do mobile-first: o CSS "solto" (fora de media query)
+   é o comportamento do CELULAR. As media queries só ADICIONAM
+   regras para telas maiores, nunca o contrário.
+   ============================================================ */
+
+header {
+  padding: var(--space-lg);
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+}
+
+header h1 {
+  color: var(--color-surface); /* sobrescreve a cor padrão de h1 pq aqui o fundo é escuro */
+}
+
+main {
+  /* Grid vertical simples no mobile: cada <section> ocupa a largura toda,
+     uma embaixo da outra, na ordem em que aparecem no HTML */
+  display: grid;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+}
+
+/* Cada <section> vira um "bloco" com respiro interno */
+section {
+  background-color: transparent;
+}
+
+/* 
+  A seção de LANÇAMENTOS tem dois cards (form + histórico).
+  No mobile eles empilham (1 coluna); no desktop vão ficar lado a lado.
+  Por isso já preparamos esse grid aqui, e mudamos só o número de
+  colunas dentro da media query — não duplicamos a lógica toda.
+*/
+#lancamentos {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 coluna = mobile */
+  gap: var(--space-md);
+}
+
+/* ============================================================
+   4. COMPONENTES
+   ============================================================ */
+
+/* Base visual repetida por qualquer "cartão" da interface:
+   cards de conta, cards de dívida e os dois cards da seção de lançamentos.
+   Centralizar num único seletor evita repetir as mesmas 4 propriedades
+   em vários lugares (regra DRY: Don't Repeat Yourself). */
+.card,
+.card-conta,
+.card-divida {
+  background-color: var(--color-surface);
+  padding: var(--space-md);
+  border-radius: var(--radius);
+  /* sombra sutil: descola o card do fundo --color-bg sem exagerar */
+  box-shadow: 0 1px 3px rgba(16, 35, 29, 0.08);
+  border: 1px solid var(--color-border);
+}
+
+.card h3 {
+  margin-bottom: var(--space-md);
+}
+
+/* Botões: usados tanto os "type=button" quanto "type=submit" dos formulários */
+button {
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  /* min-height ~44px: tamanho mínimo recomendado pra alvo de toque confortável no celular */
+  min-height: 44px;
+  transition: background-color 0.15s ease;
+}
+
+button:hover {
+  background-color: #143530; /* levemente mais escuro que --color-primary, feedback visual de hover */
+}
+
+/* :focus-visible (não confundir com :focus) só aparece na navegação por TECLADO
+   (tab), não no clique do mouse — assim não polui o visual pra quem usa mouse
+   mas ainda garante acessibilidade pra quem navega via teclado */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Botão secundário (ex: "Cancelar" dentro dos dialogs) — mesma base, cor invertida */
+#btn-cancelar-conta,
+#btn-cancelar-divida {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+}
+
+#btn-cancelar-conta:hover,
+#btn-cancelar-divida:hover {
+  background-color: var(--color-bg);
+}
+
+/* Borda lateral colorida indicando ESTADO — reaproveita as variáveis de cor
+   já definidas, mas aplicadas num contexto de "status" em vez de decoração.
+   As classes .status-ok / .status-alerta são adicionadas via JS. */
+.card-conta,
+.card-divida {
+  border-left: 4px solid var(--color-border); /* neutro por padrão */
+}
+
+.card-divida.status-ok {
+  border-left-color: var(--color-success);
+}
+
+.card-divida.status-alerta {
+  border-left-color: var(--color-danger);
+}
+
+/* Badge (selo pequeno) usado no aviso de vencimento próximo */
+.badge {
+  display: inline-block;
+  padding: 2px var(--space-sm);
+  border-radius: 999px; /* valor bem alto = vira "cápsula" independente do tamanho do texto */
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: var(--space-sm);
+}
+
+.badge.alerta-vencimento {
+  background-color: var(--color-danger);
+  color: var(--color-surface);
+}
+
+.badge.em-dia {
+  background-color: var(--color-success);
+  color: var(--color-surface);
+}
+
+/* Inputs e select — usados nos 3 formulários (lançamento, conta, dívida) */
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-ink-muted);
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-xs);
+}
+
+input,
+select {
+  width: 100%;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+input:focus,
+select:focus {
+  border-color: var(--color-primary); /* dá clareza visual de qual campo está ativo */
+  outline: none; /* removido aqui pq já tratamos o foco de teclado em :focus-visible acima */
+}
+
+/* Histórico de lançamentos: cada <li> vira uma "linha" com 3 colunas
+   (descrição | valor | data) usando flexbox */
+#lista-historico {
+  list-style: none; /* remove os bullets padrão da <ul> */
+}
+
+.item-historico {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.item-historico:last-child {
+  border-bottom: none; /* o último item não precisa de linha separadora embaixo */
+}
+
+.item-historico .descricao {
+  flex: 1; /* ocupa o espaço restante, empurrando valor/data pra direita */
+}
+
+.item-historico .data {
+  color: var(--color-ink-muted);
+  font-size: 0.85rem;
+}
+
+/* ============================================================
+   4.1 DIALOG (modais nativos de "Nova Conta" / "Nova Dívida")
+   ============================================================ */
+
+dialog {
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--space-lg);
+  width: min(90vw, 400px); /* nunca mais largo que 400px, mas encolhe em telas pequenas */
+  background-color: var(--color-surface);
+}
+
+/* ::backdrop é o fundo escurecido atrás do modal — pseudo-elemento
+   exclusivo do <dialog>, só existe quando aberto via .showModal() */
+dialog::backdrop {
+  background-color: rgba(16, 35, 29, 0.5);
+}
+
+.dialog-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+
+/* ============================================================
+   5. MEDIA QUERIES — telas maiores (tablet/desktop)
+   min-width: a partir de QUAL largura essa regra passa a valer.
+   660px e 1024px são pontos de quebra comuns (não são regra fixa,
+   ajuste testando o próprio layout no navegador).
+   ============================================================ */
+
+@media (min-width: 660px) {
+  /* No tablet/desktop, form de lançamento e histórico ficam lado a lado */
+  #lancamentos {
+    grid-template-columns: 1fr 1fr; /* 2 colunas de largura igual */
+  }
+
+  /* auto-fit + minmax: cria quantas colunas de ~220px couberem na largura
+     disponível, e se sobrar espaço, ESTICA as colunas existentes (1fr) em vez
+     de deixar um buraco vazio. Isso resolve "2 cards? 5 cards? 10 cards?"
+     sem escrever um breakpoint pra cada quantidade. */
+  #lista-contas,
+  #lista-dividas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-md);
+  }
+}
+
+@media (min-width: 1024px) {
+  main {
+    max-width: 1100px;
+    margin: 0 auto; /* centraliza o conteúdo em telas bem largas, evita esticar até a borda */
+  }
+}
