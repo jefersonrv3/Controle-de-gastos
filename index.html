@@ -6,6 +6,7 @@
   Comentários explicam o "porquê" de cada escolha, pra você reutilizar na explicação com recrutador.
 -->
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <!-- viewport é essencial pra responsividade: sem isso, o mobile renderiza como se fosse desktop e depois "encolhe" -->
@@ -14,11 +15,14 @@
 
   <!-- Fontes usadas nas variáveis --font-display / --font-body / --font-mono do style.css -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
+    rel="stylesheet">
 
   <!-- CSS fica em arquivo separado (separação de responsabilidades: estrutura x aparência) -->
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
   <!-- 
@@ -29,7 +33,11 @@
   <header>
     <h1>Controle de Gastos</h1>
     <!-- Espaço reservado pro saldo total geral, que o JS vai calcular somando todas as contas -->
-    <p id="saldo-total">Saldo total: R$ 0,00</p>
+    <div id="grana">
+      <p id="saldo-total">Saldo total: <b>R$ 0,00</b></p>
+
+    </div>
+
   </header>
 
   <!-- 
@@ -110,7 +118,8 @@
             valor exato (ignora o campo "Adicionar ao saldo" acima).
             Deixe em branco pra continuar usando "Adicionar ao saldo" normalmente.
           -->
-          <input type="number" id="editar-conta-definir-saldo" name="definirSaldo" step="0.01" placeholder="Deixe em branco para não usar">
+          <input type="number" id="editar-conta-definir-saldo" name="definirSaldo" step="0.01"
+            placeholder="Deixe em branco para não usar">
 
           <div class="dialog-acoes">
             <!-- botão de excluir fica junto das outras ações, mas com cor de destaque (.btn-perigo) -->
@@ -158,7 +167,7 @@
             no momento do submit (new Date()), então não faz sentido o usuário digitar.
           -->
 
-          <button type="submit">Adicionar Lançamento</button>
+          <button type="submit" id="btn-adicionar-lancamento">Adicionar Lançamento</button>
         </form>
       </div>
 
@@ -255,9 +264,9 @@
           <p>Parcela 3 de 10</p>
           <p>Próximo vencimento: 05/09/2026</p>
           <!-- classe "alerta-vencimento" adicionada via JS quando a data estiver próxima -->
-          <!-- <span class="badge alerta-vencimento">Vence em 3 dias</span> -->
-        </div>
-        -->
+        <!-- <span class="badge alerta-vencimento">Vence em 3 dias</span> -->
+      </div>
+      -->
       </div>
 
       <dialog id="dialog-nova-divida">
@@ -306,4 +315,5 @@
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
 </body>
+
 </html>

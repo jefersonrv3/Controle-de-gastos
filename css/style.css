@@ -11,7 +11,8 @@
   --color-bg: #F4F6F5;
   --color-surface: #FFFFFF;
   --color-ink: #10231D;
-  --color-ink-muted: #5C6E68; /* texto secundário, menos contraste */
+  --color-ink-muted: #5C6E68;
+  /* texto secundário, menos contraste */
   --color-primary: #1B4B43;
   --color-accent: #E8A33D;
   --color-success: #3F8F6F;
@@ -32,7 +33,8 @@
   --space-lg: 24px;
   --space-xl: 40px;
 
-  --radius: 12px; /* arredondamento padrão dos cards/botões */
+  --radius: 12px;
+  /* arredondamento padrão dos cards/botões */
 }
 
 /* ============================================================
@@ -43,17 +45,21 @@
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box; /* padding/border não somam ao width definido, facilita cálculo de grid */
+  box-sizing: border-box;
+  /* padding/border não somam ao width definido, facilita cálculo de grid */
 }
 
 body {
   font-family: var(--font-body);
   background-color: var(--color-bg);
   color: var(--color-ink);
-  line-height: 1.5; /* espaçamento entre linhas de texto, melhora leitura */
+  line-height: 1.5;
+  /* espaçamento entre linhas de texto, melhora leitura */
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--font-display);
   color: var(--color-primary);
 }
@@ -61,7 +67,8 @@ h1, h2, h3 {
 /* Classe utilitária: aplique em qualquer elemento que exiba um VALOR monetário */
 .valor {
   font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums; /* garante que os dígitos tenham a mesma largura */
+  font-variant-numeric: tabular-nums;
+  /* garante que os dígitos tenham a mesma largura */
 }
 
 /* ============================================================
@@ -78,7 +85,21 @@ header {
 }
 
 header h1 {
-  color: var(--color-surface); /* sobrescreve a cor padrão de h1 pq aqui o fundo é escuro */
+  color: var(--color-surface);
+  text-align: center;
+  /* sobrescreve a cor padrão de h1 pq aqui o fundo é escuro */
+}
+
+#saldo-total {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 650;
+
+}
+
+#grana {
+  font-size: 25px;
+  text-shadow: 5px 5px 10px rgb(0, 54, 18);
 }
 
 main {
@@ -102,7 +123,8 @@ section {
 */
 #lancamentos {
   display: grid;
-  grid-template-columns: 1fr; /* 1 coluna = mobile */
+  grid-template-columns: 1fr;
+  /* 1 coluna = mobile */
   gap: var(--space-md);
 }
 
@@ -115,6 +137,10 @@ section {
 */
 #lancamentos h2 {
   grid-column: 1 / -1;
+}
+
+#btn-adicionar-lancamento {
+  margin-top: 15px;
 }
 
 /* ============================================================
@@ -158,7 +184,8 @@ button {
 }
 
 button:hover {
-  background-color: #143530; /* levemente mais escuro que --color-primary, feedback visual de hover */
+  background-color: #143530;
+  /* levemente mais escuro que --color-primary, feedback visual de hover */
 }
 
 /* :focus-visible (não confundir com :focus) só aparece na navegação por TECLADO
@@ -184,18 +211,33 @@ select:focus-visible {
   background-color: var(--color-bg);
 }
 
+#btn-nova-divida {
+  margin-bottom: 15px;
+}
+
+#btn-nova-conta {
+  margin-bottom: 15px;
+}
+
 /* Borda lateral colorida indicando ESTADO — reaproveita as variáveis de cor
    já definidas, mas aplicadas num contexto de "status" em vez de decoração.
    As classes .status-ok / .status-alerta são adicionadas via JS. */
 .card-conta,
 .card-divida {
-  border-left: 4px solid var(--color-border); /* neutro por padrão */
+  border-left: 4px solid var(--color-border);
+  margin-bottom: 15px;
+  /* neutro por padrão */
 }
 
 /* Recebível já nasce com borda verde: diferente da dívida (que é neutra até
    ficar em alerta), aqui a cor reforça "isso é dinheiro entrando" */
 .card-recebivel {
   border-left: 4px solid var(--color-success);
+  margin-bottom: 15px;
+}
+
+#btn-novo-recebivel {
+  margin-bottom: 15px;
 }
 
 .card-divida.status-ok {
@@ -210,7 +252,8 @@ select:focus-visible {
 .badge {
   display: inline-block;
   padding: 2px var(--space-sm);
-  border-radius: 999px; /* valor bem alto = vira "cápsula" independente do tamanho do texto */
+  border-radius: 999px;
+  /* valor bem alto = vira "cápsula" independente do tamanho do texto */
   font-size: 0.75rem;
   font-weight: 600;
   margin-top: var(--space-sm);
@@ -249,19 +292,23 @@ select {
 
 input:focus,
 select:focus {
-  border-color: var(--color-primary); /* dá clareza visual de qual campo está ativo */
-  outline: none; /* removido aqui pq já tratamos o foco de teclado em :focus-visible acima */
+  border-color: var(--color-primary);
+  /* dá clareza visual de qual campo está ativo */
+  outline: none;
+  /* removido aqui pq já tratamos o foco de teclado em :focus-visible acima */
 }
 
 /* Histórico de lançamentos: cada <li> vira uma "linha" com 3 colunas
    (descrição | valor | data) usando flexbox */
 #lista-historico {
-  list-style: none; /* remove os bullets padrão da <ul> */
+  list-style: none;
+  /* remove os bullets padrão da <ul> */
 }
 
 .item-historico {
   display: flex;
-  flex-wrap: wrap; /* em telas estreitas, o botão de excluir quebra pra próxima linha */
+  flex-wrap: wrap;
+  /* em telas estreitas, o botão de excluir quebra pra próxima linha */
   justify-content: space-between;
   align-items: center;
   gap: var(--space-sm);
@@ -270,15 +317,18 @@ select:focus {
 }
 
 .item-historico .btn-excluir-lancamento {
-  margin-left: auto; /* empurra o botão pra direita mesmo quando quebra linha */
+  margin-left: auto;
+  /* empurra o botão pra direita mesmo quando quebra linha */
 }
 
 .item-historico:last-child {
-  border-bottom: none; /* o último item não precisa de linha separadora embaixo */
+  border-bottom: none;
+  /* o último item não precisa de linha separadora embaixo */
 }
 
 .item-historico .descricao {
-  flex: 1; /* ocupa o espaço restante, empurrando valor/data pra direita */
+  flex: 1;
+  /* ocupa o espaço restante, empurrando valor/data pra direita */
 }
 
 .item-historico .data {
@@ -294,7 +344,8 @@ dialog {
   border: none;
   border-radius: var(--radius);
   padding: var(--space-lg);
-  width: min(90vw, 400px); /* nunca mais largo que 400px, mas encolhe em telas pequenas */
+  width: min(90vw, 400px);
+  /* nunca mais largo que 400px, mas encolhe em telas pequenas */
   background-color: var(--color-surface);
 }
 
@@ -321,11 +372,13 @@ dialog::backdrop {
   display: flex;
   gap: var(--space-sm);
   margin-top: var(--space-sm);
-  flex-wrap: wrap; /* em telas estreitas, os botões quebram linha em vez de espremer */
+  flex-wrap: wrap;
+  /* em telas estreitas, os botões quebram linha em vez de espremer */
 }
 
 .btn-icone {
-  min-height: auto; /* menor que o botão padrão de 44px, pois é uma ação secundária */
+  min-height: auto;
+  /* menor que o botão padrão de 44px, pois é uma ação secundária */
   padding: var(--space-xs) var(--space-sm);
   font-size: 0.8rem;
 }
@@ -337,7 +390,8 @@ dialog::backdrop {
 }
 
 .btn-perigo:hover {
-  background-color: #9c332c; /* --color-danger escurecido, mesma lógica do hover de button */
+  background-color: #9c332c;
+  /* --color-danger escurecido, mesma lógica do hover de button */
 }
 
 
@@ -349,9 +403,11 @@ dialog::backdrop {
    ============================================================ */
 
 @media (min-width: 660px) {
+
   /* No tablet/desktop, form de lançamento e histórico ficam lado a lado */
   #lancamentos {
-    grid-template-columns: 1fr 1fr; /* 2 colunas de largura igual */
+    grid-template-columns: 1fr 1fr;
+    /* 2 colunas de largura igual */
   }
 
   /* auto-fit + minmax: cria quantas colunas de ~220px couberem na largura
@@ -370,7 +426,8 @@ dialog::backdrop {
 @media (min-width: 1024px) {
   main {
     max-width: 1100px;
-    margin: 0 auto; /* centraliza o conteúdo em telas bem largas, evita esticar até a borda */
+    margin: 0 auto;
+    /* centraliza o conteúdo em telas bem largas, evita esticar até a borda */
   }
 
   /* text-align: center só entra aqui dentro (telas grandes). No mobile,
