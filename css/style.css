@@ -356,6 +356,7 @@ dialog {
   width: min(90vw, 400px);
   /* nunca mais largo que 400px, mas encolhe em telas pequenas */
   background-color: var(--color-surface);
+  margin: auto
 }
 
 /* ::backdrop é o fundo escurecido atrás do modal — pseudo-elemento
