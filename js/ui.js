@@ -41,7 +41,7 @@ function renderContas(contas) {
   container.innerHTML = ''; // limpa antes de redesenhar, evita duplicar cards
 
   if (contas.length === 0) {
-    container.innerHTML = '<p>Nenhuma conta cadastrada ainda.</p>';
+    container.innerHTML = '<p id="conta-nao-cadastrada">Nenhuma conta cadastrada ainda.</p>';
     return;
   }
 
