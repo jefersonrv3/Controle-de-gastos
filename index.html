@@ -16,9 +16,8 @@
   <!-- Fontes usadas nas variáveis --font-display / --font-body / --font-mono do style.css -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
-    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Figtree:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
     rel="stylesheet">
-
   <!-- CSS fica em arquivo separado (separação de responsabilidades: estrutura x aparência) -->
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -30,277 +29,278 @@
     É a primeira coisa que o usuário vê, então fica fora do <main> por semântica 
     (não é "conteúdo principal", é cabeçalho/contexto).
   -->
-  <header>
+  <header></header>
+  <div id="novoHeader">
     <h1>Controle de Gastos</h1>
     <!-- Espaço reservado pro saldo total geral, que o JS vai calcular somando todas as contas -->
     <div id="grana">
       <p id="saldo-total">Saldo total: <b>R$ 0,00</b></p>
 
     </div>
+  </div>
 
-  </header>
 
   <!-- 
     MAIN: conteúdo principal da página. Só existe UM <main> por página (regra de acessibilidade).
     Dentro dele, cada funcionalidade grande vira uma <section> própria.
   -->
   <main>
-
-    <!-- ======================================================
+    <div id="novoMain">
+      <!-- ======================================================
          SEÇÃO 1: CONTAS (carteiras / saldos)
          ====================================================== -->
-    <section id="contas" aria-labelledby="titulo-contas">
-      <h2 id="titulo-contas">Minhas Contas</h2>
+      <section id="contas" aria-labelledby="titulo-contas">
+        <h2 id="titulo-contas">Minhas Contas</h2>
 
-      <!-- Botão que vai abrir um formulário/modal de nova conta (comportamento fica no JS) -->
-      <button type="button" id="btn-nova-conta">+ Adicionar Conta</button>
+        <!-- Botão que vai abrir um formulário/modal de nova conta (comportamento fica no JS) -->
+        <button type="button" id="btn-nova-conta">+ Adicionar Conta</button>
 
-      <!-- 
+        <!-- 
         Container vazio onde o JS vai INJETAR os cards de conta dinamicamente.
         Cada conta salva no localStorage vira um card aqui.
         data-container ajuda a identificar esse elemento no JS sem depender de classes de estilo.
       -->
-      <div id="lista-contas" data-container="contas">
-        <!-- Exemplo do que um card gerado por JS vai parecer (deixado como comentário/referência):
+        <div id="lista-contas" data-container="contas">
+          <!-- Exemplo do que um card gerado por JS vai parecer (deixado como comentário/referência):
         <div class="card-conta" data-conta-id="1">
           <h3>Nome da Conta</h3>
           <p>R$ 1.000,00</p>
         </div>
         -->
-      </div>
+        </div>
 
-      <!-- 
+        <!-- 
         <dialog> é um elemento NATIVO do HTML5 pra modais: já vem com
         fundo escurecido (::backdrop), abre com .showModal() e fecha com .close()
         via JS, sem precisar de biblioteca externa nem CSS de posicionamento manual.
       -->
-      <dialog id="dialog-nova-conta">
-        <form id="form-nova-conta">
-          <h3>Nova Conta</h3>
+        <dialog id="dialog-nova-conta">
+          <form id="form-nova-conta">
+            <h3>Nova Conta</h3>
 
-          <label for="conta-nome">Nome da conta</label>
-          <input type="text" id="conta-nome" name="nome" placeholder="Ex: Carteira, Nubank..." required>
+            <label for="conta-nome">Nome da conta</label>
+            <input type="text" id="conta-nome" name="nome" placeholder="Ex: Carteira, Nubank..." required>
 
-          <label for="conta-saldo">Saldo inicial (R$)</label>
-          <input type="number" id="conta-saldo" name="saldo" step="0.01" placeholder="0,00" required>
+            <label for="conta-saldo">Saldo inicial (R$)</label>
+            <input type="number" id="conta-saldo" name="saldo" step="0.01" placeholder="0,00" required>
 
-          <div class="dialog-acoes">
-            <!-- type="button" com id específico pro JS fechar sem submeter o form -->
-            <button type="button" id="btn-cancelar-conta">Cancelar</button>
-            <button type="submit">Salvar</button>
-          </div>
-        </form>
-      </dialog>
+            <div class="dialog-acoes">
+              <!-- type="button" com id específico pro JS fechar sem submeter o form -->
+              <button type="button" id="btn-cancelar-conta">Cancelar</button>
+              <button type="submit">Salvar</button>
+            </div>
+          </form>
+        </dialog>
 
-      <!-- 
+        <!-- 
         Modal de EDIÇÃO, separado do modal de CRIAÇÃO acima. Poderia ser o mesmo
         dialog reaproveitado, mas manter dois elementos distintos deixa o HTML
         mais fácil de ler (cada um tem um propósito único e óbvio pelo id).
       -->
-      <dialog id="dialog-editar-conta">
-        <form id="form-editar-conta">
-          <h3>Editar Conta</h3>
+        <dialog id="dialog-editar-conta">
+          <form id="form-editar-conta">
+            <h3>Editar Conta</h3>
 
-          <label for="editar-conta-nome">Nome da conta</label>
-          <input type="text" id="editar-conta-nome" name="nome" required>
+            <label for="editar-conta-nome">Nome da conta</label>
+            <input type="text" id="editar-conta-nome" name="nome" required>
 
-          <label for="editar-conta-adicionar-saldo">Adicionar ao saldo (R$)</label>
-          <!-- 
+            <label for="editar-conta-adicionar-saldo">Adicionar ao saldo (R$)</label>
+            <!-- 
             Campo SOMA ao saldo atual, não substitui. Deixe "0" se quiser só
             renomear a conta. Pra RETIRAR saldo, digite um valor negativo
             (ex: -50 subtrai R$ 50 do saldo atual).
           -->
-          <input type="number" id="editar-conta-adicionar-saldo" name="adicionarSaldo" step="0.01" value="0">
+            <input type="number" id="editar-conta-adicionar-saldo" name="adicionarSaldo" step="0.01" value="0">
 
-          <label for="editar-conta-definir-saldo">Ou defina o saldo exato (R$)</label>
-          <!-- 
+            <label for="editar-conta-definir-saldo">Ou defina o saldo exato (R$)</label>
+            <!-- 
             Campo alternativo: se PREENCHIDO, sobrescreve o saldo com esse
             valor exato (ignora o campo "Adicionar ao saldo" acima).
             Deixe em branco pra continuar usando "Adicionar ao saldo" normalmente.
           -->
-          <input type="number" id="editar-conta-definir-saldo" name="definirSaldo" step="0.01"
-            placeholder="Deixe em branco para não usar">
+            <input type="number" id="editar-conta-definir-saldo" name="definirSaldo" step="0.01"
+              placeholder="Deixe em branco para não usar">
 
-          <div class="dialog-acoes">
-            <!-- botão de excluir fica junto das outras ações, mas com cor de destaque (.btn-perigo) -->
-            <button type="button" id="btn-excluir-conta" class="btn-perigo">Excluir conta</button>
-            <button type="button" id="btn-cancelar-editar-conta">Cancelar</button>
-            <button type="submit">Salvar</button>
-          </div>
-        </form>
-      </dialog>
-    </section>
+            <div class="dialog-acoes">
+              <!-- botão de excluir fica junto das outras ações, mas com cor de destaque (.btn-perigo) -->
+              <button type="button" id="btn-excluir-conta" class="btn-perigo">Excluir conta</button>
+              <button type="button" id="btn-cancelar-editar-conta">Cancelar</button>
+              <button type="submit">Salvar</button>
+            </div>
+          </form>
+        </dialog>
+      </section>
 
-    <!-- ======================================================
+      <!-- ======================================================
          SEÇÃO 2: LANÇAMENTOS (gastos diários)
          Dois cards lado a lado: formulário de novo lançamento + histórico
          ====================================================== -->
-    <section id="lancamentos" aria-labelledby="titulo-lancamentos">
-      <h2 id="titulo-lancamentos">Lançamentos</h2>
+      <section id="lancamentos" aria-labelledby="titulo-lancamentos">
+        <h2 id="titulo-lancamentos">Lançamentos</h2>
 
-      <!-- Card 1: formulário de novo lançamento -->
-      <div class="card" id="card-novo-lancamento">
-        <h3>Novo Lançamento</h3>
+        <!-- Card 1: formulário de novo lançamento -->
+        <div class="card" id="card-novo-lancamento">
+          <h3>Novo Lançamento</h3>
 
-        <!-- 
+          <!-- 
           <form> de verdade (não uma div qualquer): isso dá validação nativa do navegador
           de graça com o atributo "required", sem precisar escrever JS pra validar campo vazio.
         -->
-        <form id="form-lancamento">
+          <form id="form-lancamento">
 
-          <!-- Select vai ser preenchido via JS com as contas cadastradas (não dá pra saber antecipadamente) -->
-          <label for="lancamento-conta">Conta</label>
-          <select id="lancamento-conta" name="conta" required>
-            <!-- <option> gerado dinamicamente pelo JS a partir da lista de contas -->
-          </select>
+            <!-- Select vai ser preenchido via JS com as contas cadastradas (não dá pra saber antecipadamente) -->
+            <label for="lancamento-conta">Conta</label>
+            <select id="lancamento-conta" name="conta" required>
+              <!-- <option> gerado dinamicamente pelo JS a partir da lista de contas -->
+            </select>
 
-          <label for="lancamento-descricao">Descrição</label>
-          <input type="text" id="lancamento-descricao" name="descricao" placeholder="Ex: Mercado" required>
+            <label for="lancamento-descricao">Descrição</label>
+            <input type="text" id="lancamento-descricao" name="descricao" placeholder="Ex: Mercado" required>
 
-          <label for="lancamento-valor">Valor (R$)</label>
-          <!-- type="number" com step ajuda a evitar entrada de texto inválido, e já abre teclado numérico no celular -->
-          <input type="number" id="lancamento-valor" name="valor" step="0.01" min="0" placeholder="0,00" required>
+            <label for="lancamento-valor">Valor (R$)</label>
+            <!-- type="number" com step ajuda a evitar entrada de texto inválido, e já abre teclado numérico no celular -->
+            <input type="number" id="lancamento-valor" name="valor" step="0.01" min="0" placeholder="0,00" required>
 
-          <!-- 
+            <!-- 
             Repare: NÃO existe campo de data aqui.
             Por especificação do projeto, a data é capturada automaticamente pelo JS 
             no momento do submit (new Date()), então não faz sentido o usuário digitar.
           -->
 
-          <button type="submit" id="btn-adicionar-lancamento">Adicionar Lançamento</button>
-        </form>
-      </div>
+            <button type="submit" id="btn-adicionar-lancamento">Adicionar Lançamento</button>
+          </form>
+        </div>
 
-      <!-- Card 2: histórico de lançamentos -->
-      <div class="card" id="card-historico">
-        <h3>Histórico</h3>
+        <!-- Card 2: histórico de lançamentos -->
+        <div class="card" id="card-historico">
+          <h3>Histórico</h3>
 
-        <!-- Container onde o JS vai listar cada lançamento salvo (mais recente primeiro, por exemplo) -->
-        <ul id="lista-historico" data-container="historico">
-          <!-- Exemplo de item gerado por JS:
+          <!-- Container onde o JS vai listar cada lançamento salvo (mais recente primeiro, por exemplo) -->
+          <ul id="lista-historico" data-container="historico">
+            <!-- Exemplo de item gerado por JS:
           <li class="item-historico" data-lancamento-id="1">
             <span>Mercado</span>
             <span>R$ 150,00</span>
             <span>24/08/2026</span>
           </li>
           -->
-        </ul>
-      </div>
-    </section>
+          </ul>
+        </div>
+      </section>
 
-    <!-- ======================================================
+      <!-- ======================================================
          SEÇÃO 3: DINHEIRO A RECEBER
          Mesma lógica de parcelas da dívida, só que "invertida":
          ao marcar uma parcela como recebida, o valor ENTRA numa
          carteira escolhida (em vez de sair, como na dívida).
          ====================================================== -->
-    <section id="recebiveis" aria-labelledby="titulo-recebiveis">
-      <h2 id="titulo-recebiveis">Dinheiro a Receber</h2>
+      <section id="recebiveis" aria-labelledby="titulo-recebiveis">
+        <h2 id="titulo-recebiveis">Dinheiro a Receber</h2>
 
-      <button type="button" id="btn-novo-recebivel">+ Adicionar Dinheiro a Receber</button>
+        <button type="button" id="btn-novo-recebivel">+ Adicionar Dinheiro a Receber</button>
 
-      <!-- Container onde o JS vai montar um card por recebível (mesmo padrão de #lista-dividas) -->
-      <div id="lista-recebiveis" data-container="recebiveis">
-        <!-- Exemplo de card gerado por JS:
+        <!-- Container onde o JS vai montar um card por recebível (mesmo padrão de #lista-dividas) -->
+        <div id="lista-recebiveis" data-container="recebiveis">
+          <!-- Exemplo de card gerado por JS:
         <div class="card-recebivel" data-recebivel-id="1">
           <h3>Freelance - Cliente X</h3>
           <p>Parcela 1 de 3</p>
           <p>Previsão: 10/09/2026</p>
         </div>
         -->
-      </div>
+        </div>
 
-      <dialog id="dialog-novo-recebivel">
-        <form id="form-novo-recebivel">
-          <h3>Novo Dinheiro a Receber</h3>
+        <dialog id="dialog-novo-recebivel">
+          <form id="form-novo-recebivel">
+            <h3>Novo Dinheiro a Receber</h3>
 
-          <label for="recebivel-descricao">Descrição</label>
-          <input type="text" id="recebivel-descricao" name="descricao" placeholder="Ex: Freelance Cliente X" required>
+            <label for="recebivel-descricao">Descrição</label>
+            <input type="text" id="recebivel-descricao" name="descricao" placeholder="Ex: Freelance Cliente X" required>
 
-          <label for="recebivel-valor-total">Valor total (R$)</label>
-          <input type="number" id="recebivel-valor-total" name="valorTotal" step="0.01" min="0" required>
+            <label for="recebivel-valor-total">Valor total (R$)</label>
+            <input type="number" id="recebivel-valor-total" name="valorTotal" step="0.01" min="0" required>
 
-          <label for="recebivel-parcelas">Número de parcelas</label>
-          <input type="number" id="recebivel-parcelas" name="numParcelas" step="1" min="1" value="1" required>
+            <label for="recebivel-parcelas">Número de parcelas</label>
+            <input type="number" id="recebivel-parcelas" name="numParcelas" step="1" min="1" value="1" required>
 
-          <label for="recebivel-primeiro-recebimento">Data do primeiro recebimento</label>
-          <input type="date" id="recebivel-primeiro-recebimento" name="primeiroRecebimento" required>
+            <label for="recebivel-primeiro-recebimento">Data do primeiro recebimento</label>
+            <input type="date" id="recebivel-primeiro-recebimento" name="primeiroRecebimento" required>
 
-          <label for="recebivel-conta-destino">Depositar em qual conta?</label>
-          <!-- 
+            <label for="recebivel-conta-destino">Depositar em qual conta?</label>
+            <!-- 
             Definido JÁ NA CRIAÇÃO: sempre que uma parcela for marcada como
             recebida, o valor vai automaticamente pra ESSA conta, sem precisar
             perguntar de novo a cada parcela.
           -->
-          <select id="recebivel-conta-destino" name="contaDestino" required>
-            <!-- <option> preenchido dinamicamente pelo JS, igual ao select de lançamento -->
-          </select>
+            <select id="recebivel-conta-destino" name="contaDestino" required>
+              <!-- <option> preenchido dinamicamente pelo JS, igual ao select de lançamento -->
+            </select>
 
-          <div class="dialog-acoes">
-            <button type="button" id="btn-cancelar-recebivel">Cancelar</button>
-            <button type="submit">Salvar</button>
-          </div>
-        </form>
-      </dialog>
-    </section>
+            <div class="dialog-acoes">
+              <button type="button" id="btn-cancelar-recebivel">Cancelar</button>
+              <button type="submit">Salvar</button>
+            </div>
+          </form>
+        </dialog>
+      </section>
 
-    <!-- ======================================================
+      <!-- ======================================================
          SEÇÃO 4: DÍVIDAS ATIVAS (compras parceladas, empréstimos etc.)
          ====================================================== -->
-    <section id="dividas" aria-labelledby="titulo-dividas">
-      <h2 id="titulo-dividas">Dívidas Ativas</h2>
+      <section id="dividas" aria-labelledby="titulo-dividas">
+        <h2 id="titulo-dividas">Dívidas Ativas</h2>
 
-      <button type="button" id="btn-nova-divida">+ Nova Dívida</button>
+        <button type="button" id="btn-nova-divida">+ Nova Dívida</button>
 
-      <!-- 
+        <!-- 
         Container onde o JS vai montar um card POR dívida.
         Cada card mostra: descrição, parcelas restantes, valor da parcela,
         previsão de pagamento e um indicador visual (classe CSS) de alerta de vencimento.
       -->
-      <div id="lista-dividas" data-container="dividas">
-        <!-- Exemplo de card gerado por JS:
+        <div id="lista-dividas" data-container="dividas">
+          <!-- Exemplo de card gerado por JS:
         <div class="card-divida" data-divida-id="1">
           <h3>Notebook</h3>
           <p>Parcela 3 de 10</p>
           <p>Próximo vencimento: 05/09/2026</p>
-          <!-- classe "alerta-vencimento" adicionada via JS quando a data estiver próxima -->
-        <!-- <span class="badge alerta-vencimento">Vence em 3 dias</span> -->
-      </div>
-      -->
-      </div>
+          <!- classe "alerta-vencimento" adicionada via JS quando a data estiver próxima -->
+          <!-- <span class="badge alerta-vencimento">Vence em 3 dias</span> -->
+        </div>
 
-      <dialog id="dialog-nova-divida">
-        <form id="form-nova-divida">
-          <h3>Nova Dívida</h3>
+    </div>
 
-          <label for="divida-descricao">Descrição</label>
-          <input type="text" id="divida-descricao" name="descricao" placeholder="Ex: Notebook parcelado" required>
+    <dialog id="dialog-nova-divida">
+      <form id="form-nova-divida">
+        <h3>Nova Dívida</h3>
 
-          <label for="divida-valor-total">Valor total (R$)</label>
-          <input type="number" id="divida-valor-total" name="valorTotal" step="0.01" min="0" required>
+        <label for="divida-descricao">Descrição</label>
+        <input type="text" id="divida-descricao" name="descricao" placeholder="Ex: Notebook parcelado" required>
 
-          <label for="divida-parcelas">Número de parcelas</label>
-          <input type="number" id="divida-parcelas" name="numParcelas" step="1" min="1" required>
+        <label for="divida-valor-total">Valor total (R$)</label>
+        <input type="number" id="divida-valor-total" name="valorTotal" step="0.01" min="0" required>
 
-          <label for="divida-primeiro-vencimento">Data do primeiro vencimento</label>
-          <!-- 
+        <label for="divida-parcelas">Número de parcelas</label>
+        <input type="number" id="divida-parcelas" name="numParcelas" step="1" min="1" required>
+
+        <label for="divida-primeiro-vencimento">Data do primeiro vencimento</label>
+        <!-- 
             Aqui SIM faz sentido pedir a data pro usuário digitar (diferente do
             lançamento diário): o primeiro vencimento de uma dívida geralmente
             não é "hoje", é uma data futura definida no ato da compra.
           -->
-          <input type="date" id="divida-primeiro-vencimento" name="primeiroVencimento" required>
+        <input type="date" id="divida-primeiro-vencimento" name="primeiroVencimento" required>
 
-          <div class="dialog-acoes">
-            <button type="button" id="btn-cancelar-divida">Cancelar</button>
-            <button type="submit">Salvar</button>
-          </div>
-        </form>
-      </dialog>
+        <div class="dialog-acoes">
+          <button type="button" id="btn-cancelar-divida">Cancelar</button>
+          <button type="submit">Salvar</button>
+        </div>
+      </form>
+    </dialog>
     </section>
-
+    </div>
   </main>
 
-  
+
 
   <!-- 
     Scripts no final do <body>: assim o HTML já foi todo carregado (DOM pronto)
