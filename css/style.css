@@ -70,7 +70,6 @@ h3 {
 .valor {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  /* garante que os dígitos tenham a mesma largura */
 }
 
 /* ============================================================
